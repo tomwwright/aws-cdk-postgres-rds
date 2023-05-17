@@ -1,5 +1,6 @@
 {
   "name": "aws-cdk-postgres-rds",
+  "license": "UNLICENSED",
   "version": "0.1.0",
   "bin": {
     "aws-cdk-postgres-rds": "bin/aws-cdk-postgres-rds.js"
