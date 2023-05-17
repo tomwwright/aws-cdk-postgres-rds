@@ -1,21 +1,35 @@
 #!/usr/bin/env node
-import 'source-map-support/register';
-import * as cdk from 'aws-cdk-lib';
-import { AwsCdkPostgresRdsStack } from '../lib/aws-cdk-postgres-rds-stack';
+import "source-map-support/register";
+import * as cdk from "aws-cdk-lib";
+import { SubnetType, Vpc } from "aws-cdk-lib/aws-ec2";
+import {
+  DatabaseCluster,
+  DatabaseClusterEngine,
+  AuroraPostgresEngineVersion,
+  CfnDBCluster,
+  SubnetGroup,
+} from "aws-cdk-lib/aws-rds";
+import { ServerlessCluster } from "../lib/serverless-cluster";
 
 const app = new cdk.App();
-new AwsCdkPostgresRdsStack(app, 'AwsCdkPostgresRdsStack', {
-  /* If you don't specify 'env', this stack will be environment-agnostic.
-   * Account/Region-dependent features and context lookups will not work,
-   * but a single synthesized template can be deployed anywhere. */
+const stack = new cdk.Stack(app, "postgres-rds");
 
-  /* Uncomment the next line to specialize this stack for the AWS Account
-   * and Region that are implied by the current CLI configuration. */
-  // env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION },
+const vpc = new Vpc(stack, "Vpc", {
+  natGateways: 0,
+});
 
-  /* Uncomment the next line if you know exactly what Account and Region you
-   * want to deploy the stack to. */
-  // env: { account: '123456789012', region: 'us-east-1' },
-
-  /* For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html */
+const database = new ServerlessCluster(stack, "Database", {
+  engine: DatabaseClusterEngine.auroraPostgres({
+    version: AuroraPostgresEngineVersion.VER_15_2,
+  }),
+  subnetGroup: new SubnetGroup(stack, "Subnets", {
+    vpc,
+    description: "Isolated subnets",
+    vpcSubnets: {
+      subnetType: SubnetType.PRIVATE_ISOLATED,
+    },
+  }),
+  instanceProps: {
+    vpc: vpc,
+  },
 });
