@@ -7,6 +7,8 @@ import { Construct } from "constructs";
 
 interface ServerlessClusterProps extends DatabaseClusterProps {
   instanceProps: Omit<DatabaseClusterProps["instanceProps"], "instanceType">;
+  minCapacity: number;
+  maxCapacity: number;
 }
 
 export class ServerlessCluster extends DatabaseCluster {
@@ -22,8 +24,8 @@ export class ServerlessCluster extends DatabaseCluster {
     (
       this.node.findChild("Resource") as CfnDBCluster
     ).serverlessV2ScalingConfiguration = {
-      minCapacity: 1,
-      maxCapacity: 2,
+      minCapacity: props.minCapacity ?? 0.5,
+      maxCapacity: props.maxCapacity ?? 1,
     };
   }
 }

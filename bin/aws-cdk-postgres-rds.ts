@@ -32,4 +32,6 @@ const database = new ServerlessCluster(stack, "Database", {
   instanceProps: {
     vpc: vpc,
   },
+  minCapacity: 1,
+  maxCapacity: 2,
 });
